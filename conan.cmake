@@ -457,6 +457,27 @@ macro(conan_check)
     endif()
 endmacro()
 
+macro(conan_check_remote)
+    # Checks if conan remote list contains the specified URL
+    # Argument URL is required
+    # Example usage:
+    #    conan_check_remote(URL https://api.bintray.com/conan/bincrafters/public-conan)
+    set(oneValueArgs URL)
+    cmake_parse_arguments(CONAN "" "${oneValueArgs}" "" ${ARGN})
+    execute_process(COMMAND ${CONAN_CMD} remote list
+        OUTPUT_VARIABLE CONAN_REMOTE_LIST)
+    string(REGEX MATCHALL "${CONAN_URL}" CONAN_URL_MATCHES ${CONAN_REMOTE_LIST})
+    list(LENGTH CONAN_URL_MATCHES CONAN_URL_COUNT)
+
+    set(CONAN_URL_FOUND FALSE)
+    if(CONAN_URL_COUNT GREATER_EQUAL 1)
+      set(CONAN_URL_FOUND TRUE)
+      if(CONAN_URL_COUNT GREATER 1)
+        message(STATUS "Conan ** WARNING** : More than one matching URL found in remote list")
+      endif()
+    endif()
+endmacro()
+
 macro(conan_add_remote)
     # Adds a remote
     # Arguments URL and NAME are required, INDEX is optional
